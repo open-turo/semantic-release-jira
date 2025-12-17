@@ -1,0 +1,10 @@
+*-debug.log
+*-error.log
+newrelic_agent.log
+node_modules/
+lib/
+.idea/
+reports/
+npm_auth_token
+.DS_Store
+.yalc
