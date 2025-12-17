@@ -1,0 +1,16 @@
+name: Release
+
+on:
+  push:
+    branches: [main, "[0-9]+.x"]
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: open-turo/actions-node/release@v6
+        with:
+          github-token: ${{ secrets.OPEN_TURO_GITHUB_TOKEN }}
+          npm-token: ${{ secrets.OPEN_TURO_NPM_TOKEN }}
