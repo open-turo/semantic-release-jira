@@ -1,0 +1,24 @@
+name: Prerelease
+
+on:
+  pull_request:
+    types:
+      - opened
+      - labeled
+      - synchronize
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  prerelease:
+    name: Prerelease
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.labels.*.name, 'prerelease')
+    steps:
+      - name: Prerelease
+        id: prerelease
+        uses: open-turo/actions-node/prerelease@v6
+        with:
+          github-token: ${{ secrets.OPEN_TURO_GITHUB_TOKEN }}
+          npm-token: ${{ secrets.OPEN_TURO_NPM_TOKEN }}
+          create-prerelease: true
