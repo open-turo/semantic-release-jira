@@ -1,0 +1,20 @@
+{
+  "branches": ["main"],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@open-turo/semantic-release-jira",
+      {
+        "jiraServerUrl": "https://your-company.atlassian.net",
+        "jiraUsername": "${JIRA_USERNAME}",
+        "jiraApiToken": "${JIRA_API_TOKEN}",
+        "transitionIssues": false,
+        "createVersions": true,
+        "versionPrefix": "MyApp"
+      }
+    ],
+    "@semantic-release/npm",
+    "@semantic-release/github"
+  ]
+}
