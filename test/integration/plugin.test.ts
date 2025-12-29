@@ -52,9 +52,7 @@ describe("SemanticReleaseJiraPlugin Integration", () => {
   }
 
   describe("Full Plugin Lifecycle", () => {
-    // TODO: Fix nock mocks for version creation - currently not matching actual HTTP calls
-    // eslint-disable-next-line vitest/no-disabled-tests
-    it.skip("should run complete lifecycle: verify -> analyze -> generate -> success", async () => {
+    it("should run complete lifecycle: verify -> analyze -> generate -> success", async () => {
       const plugin = new SemanticReleaseJiraPlugin();
       const context = createMockContext();
       const config = createPluginConfig({
@@ -85,6 +83,12 @@ describe("SemanticReleaseJiraPlugin Integration", () => {
       // Step 2: Analyze commits
       await plugin.analyzeCommits(config, context);
 
+      // Mock issue details for generateNotes
+      const detailsScope = mockJiraIssueSummaries(jiraServerUrl, [
+        { key: "PROJ-123", summary: "Add new feature" },
+        { key: "PROJ-456", summary: "Fix critical bug" },
+      ]);
+
       // Step 3: Generate notes
       const notes = await plugin.generateNotes(config, context);
       expect(notes).toContain("PROJ-123");
@@ -96,11 +100,11 @@ describe("SemanticReleaseJiraPlugin Integration", () => {
         { key: "PROJ-456" },
       ]);
 
-      // Mock version creation
+      // Mock version creation (getRepositoryName returns "unknown-repo" with empty env)
       const versionScope = mockJiraVersionCreation(
         jiraServerUrl,
         "PROJ",
-        "test-repo-1.2.0",
+        "unknown-repo-v1.2.0",
         ["PROJ-123", "PROJ-456"],
       );
 
@@ -110,6 +114,7 @@ describe("SemanticReleaseJiraPlugin Integration", () => {
       // Verify all HTTP calls were made
       expect(authScope.isDone()).toBeTruthy();
       expect(issueScope.isDone()).toBeTruthy();
+      expect(detailsScope.isDone()).toBeTruthy();
       expect(transitionScope.isDone()).toBeTruthy();
       expect(versionScope.isDone()).toBeTruthy();
     }, 30_000);
@@ -519,9 +524,7 @@ describe("SemanticReleaseJiraPlugin Integration", () => {
       expectLogContains(context.logger, "DRY RUN MODE");
     });
 
-    // TODO: Fix logger.error spy expectation - error handling changed
-    // eslint-disable-next-line vitest/no-disabled-tests
-    it.skip("should handle Jira API errors gracefully", async () => {
+    it("should handle Jira API errors gracefully", async () => {
       const plugin = new SemanticReleaseJiraPlugin();
       const context = createMockContext();
       const config = createPluginConfig({
@@ -542,7 +545,14 @@ describe("SemanticReleaseJiraPlugin Integration", () => {
         "PROJ-456",
       ]);
 
-      // Transition fails
+      // Mock issue details for generateNotes
+      const detailsScope = mockJiraIssueSummaries(jiraServerUrl, [
+        { key: "PROJ-123", summary: "Add new feature" },
+        { key: "PROJ-456", summary: "Fix critical bug" },
+      ]);
+
+      // Transition fails for PROJ-123 (500 error is caught by transitionIssueToDone,
+      // returned as { success: false }, which is logged via logger.log not logger.error)
       const transitionScope = nock(jiraServerUrl)
         .get("/rest/api/2/issue/PROJ-123/transitions")
         .reply(500, { errorMessages: ["Internal error"] })
@@ -557,15 +567,19 @@ describe("SemanticReleaseJiraPlugin Integration", () => {
 
       await plugin.verifyConditions(config, context);
       await plugin.analyzeCommits(config, context);
+      await plugin.generateNotes(config, context);
 
-      // Should not throw, errors are logged
+      // Should not throw, errors are handled gracefully
       await expect(plugin.success(config, context)).resolves.not.toThrow();
 
       expect(authScope.isDone()).toBeTruthy();
       expect(issueScope.isDone()).toBeTruthy();
+      expect(detailsScope.isDone()).toBeTruthy();
       expect(transitionScope.isDone()).toBeTruthy();
 
-      expect(context.logger.error).toHaveBeenCalled();
+      // Transition errors are caught and returned as { success: false },
+      // which logs via logger.log (not logger.error)
+      expectLogContains(context.logger, "Could not transition PROJ-123");
     }, 30_000);
   });
 
@@ -581,21 +595,21 @@ describe("SemanticReleaseJiraPlugin Integration", () => {
         timeout: 1000,
       });
 
-      // Each named export function creates a new plugin instance and calls verifyConditions
-      // So we need 4 auth calls (one for each function)
+      // Guards prevent re-running verifyConditions and analyzeCommits,
+      // so only 1 auth call is needed regardless of how many lifecycle hooks are invoked.
       const authScope = nock(jiraServerUrl)
         .get("/rest/api/2/myself")
-        .times(4)
+        .times(1)
         .reply(200, { emailAddress: jiraUsername });
 
-      // analyzeCommits, generateNotes, and success each call analyzeCommits internally
-      // so we need 3 sets of issue verification calls
+      // analyzeCommits runs exactly once (guarded after first call),
+      // so only 1 set of issue verification calls is needed.
       const issueScope = nock(jiraServerUrl)
         .get("/rest/api/2/issue/PROJ-123?fields=key")
-        .times(3)
+        .times(1)
         .reply(200, { key: "PROJ-123" })
         .get("/rest/api/2/issue/PROJ-456?fields=key")
-        .times(3)
+        .times(1)
         .reply(200, { key: "PROJ-456" });
 
       // generateNotes fetches issue details
