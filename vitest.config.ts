@@ -18,6 +18,10 @@ export default defineConfig({
       provider: "v8",
       reportsDirectory: "reports/coverage",
     },
+    env: {
+      NODE_ENV: "test",
+    },
     exclude: ["**/node_modules/**", "**/test/otel-metrics-client.test.ts"],
+    testTimeout: 10_000, // 10 second timeout for all tests (integration tests need more time)
   },
 });
