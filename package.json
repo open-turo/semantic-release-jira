@@ -38,7 +38,6 @@
   "peerDependencies": {
     "semantic-release": ">=23.0.0"
   },
-  "private": true,
   "scripts": {
     "build": "tspc -p ./tsconfig.build.json",
     "check-types": "tsc --noemit",
