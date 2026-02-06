@@ -16,7 +16,11 @@ import type {
   ValidatedPluginConfig,
 } from "~/types/index.js";
 
-import { getIssuePattern, validateConfig } from "~/config/validate.js";
+import {
+  getIssuePattern,
+  isConfigurationProvided,
+  validateConfig,
+} from "~/config/validate.js";
 import {
   createGitHubClient,
   detectGitHubRepo,
@@ -759,6 +763,10 @@ export async function analyzeCommits(
   pluginConfig: Partial<PluginConfig>,
   context: SemanticReleaseContext,
 ): Promise<void> {
+  if (!isConfigurationProvided(pluginConfig)) {
+    context.logger.log("No configuration detected, plugin disabled");
+    return;
+  }
   await plugin.verifyConditions(pluginConfig, context);
   return plugin.analyzeCommits(pluginConfig, context);
 }
@@ -767,6 +775,10 @@ export async function generateNotes(
   pluginConfig: Partial<PluginConfig>,
   context: SemanticReleaseContext,
 ): Promise<string> {
+  if (!isConfigurationProvided(pluginConfig)) {
+    context.logger.log("No configuration detected, plugin disabled");
+    return "";
+  }
   await plugin.verifyConditions(pluginConfig, context);
   await plugin.analyzeCommits(pluginConfig, context);
   return plugin.generateNotes(pluginConfig, context);
@@ -776,6 +788,10 @@ export async function success(
   pluginConfig: Partial<PluginConfig>,
   context: SemanticReleaseContext,
 ): Promise<void> {
+  if (!isConfigurationProvided(pluginConfig)) {
+    context.logger.log("No configuration detected, plugin disabled");
+    return;
+  }
   await plugin.verifyConditions(pluginConfig, context);
   await plugin.analyzeCommits(pluginConfig, context);
   return plugin.success(pluginConfig, context);
@@ -785,5 +801,9 @@ export async function verifyConditions(
   pluginConfig: Partial<PluginConfig>,
   context: SemanticReleaseContext,
 ): Promise<void> {
+  if (!isConfigurationProvided(pluginConfig)) {
+    context.logger.log("No configuration detected, plugin disabled");
+    return;
+  }
   return plugin.verifyConditions(pluginConfig, context);
 }

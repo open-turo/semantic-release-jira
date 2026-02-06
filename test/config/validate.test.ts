@@ -1,6 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { getIssuePattern, validateConfig } from "~/config/validate.js";
+import {
+  getIssuePattern,
+  hasEnvironmentVariables,
+  isConfigurationProvided,
+  isPluginEnabled,
+  validateConfig,
+} from "~/config/validate.js";
 
 import {
   DEFAULT_VALUES,
@@ -354,5 +360,162 @@ describe("ReDoS vulnerability demonstration", () => {
         customIssuePattern: pattern,
       }),
     ).toThrow("ReDoS");
+  });
+});
+
+describe("isPluginEnabled", () => {
+  it("should return false for empty object", () => {
+    expect(isPluginEnabled({})).toBe(false);
+  });
+
+  it("should return false for object with only undefined values", () => {
+    expect(isPluginEnabled({ jiraServerUrl: undefined })).toBe(false);
+  });
+
+  it("should return true when any property has a value", () => {
+    expect(isPluginEnabled({ jiraServerUrl: "https://test.com" })).toBe(true);
+  });
+
+  it("should return true when multiple properties are set", () => {
+    expect(
+      isPluginEnabled({
+        createVersions: true,
+        jiraServerUrl: "https://test.com",
+      }),
+    ).toBe(true);
+  });
+
+  it("should return true when jiraApiToken is set", () => {
+    expect(isPluginEnabled({ jiraApiToken: "token123" })).toBe(true);
+  });
+
+  it("should return true when transitionIssues is set", () => {
+    expect(isPluginEnabled({ transitionIssues: true })).toBe(true);
+  });
+
+  it("should return false for object with multiple undefined values", () => {
+    expect(
+      isPluginEnabled({
+        createVersions: undefined,
+        jiraApiToken: undefined,
+        jiraServerUrl: undefined,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("hasEnvironmentVariables", () => {
+  let originalEnvironment: NodeJS.ProcessEnv;
+
+  beforeEach(() => {
+    originalEnvironment = { ...process.env };
+    // Clean all SEMANTIC_RELEASE_JIRA_* vars
+    for (const key of Object.keys(process.env)) {
+      if (key.startsWith("SEMANTIC_RELEASE_JIRA_")) {
+        delete process.env[key];
+      }
+    }
+  });
+
+  afterEach(() => {
+    process.env = originalEnvironment;
+  });
+
+  it("should return false when no SEMANTIC_RELEASE_JIRA_* env vars are set", () => {
+    expect(hasEnvironmentVariables()).toBe(false);
+  });
+
+  it("should return true when SEMANTIC_RELEASE_JIRA_SERVER_URL is set", () => {
+    process.env.SEMANTIC_RELEASE_JIRA_SERVER_URL = "https://test.com";
+    expect(hasEnvironmentVariables()).toBe(true);
+  });
+
+  it("should return true when SEMANTIC_RELEASE_JIRA_DRY_RUN is set", () => {
+    process.env.SEMANTIC_RELEASE_JIRA_DRY_RUN = "true";
+    expect(hasEnvironmentVariables()).toBe(true);
+  });
+
+  it("should return true when SEMANTIC_RELEASE_JIRA_API_TOKEN is set", () => {
+    process.env.SEMANTIC_RELEASE_JIRA_API_TOKEN = "token123";
+    expect(hasEnvironmentVariables()).toBe(true);
+  });
+
+  it("should return true when SEMANTIC_RELEASE_JIRA_USERNAME is set", () => {
+    process.env.SEMANTIC_RELEASE_JIRA_USERNAME = "user@example.com";
+    expect(hasEnvironmentVariables()).toBe(true);
+  });
+
+  it("should return true when multiple SEMANTIC_RELEASE_JIRA_* env vars are set", () => {
+    process.env.SEMANTIC_RELEASE_JIRA_SERVER_URL = "https://test.com";
+    process.env.SEMANTIC_RELEASE_JIRA_DRY_RUN = "true";
+    expect(hasEnvironmentVariables()).toBe(true);
+  });
+
+  it("should return false when only non-SEMANTIC_RELEASE_JIRA_* env vars are set", () => {
+    process.env.OTHER_VAR = "value";
+    process.env.JIRA_URL = "https://test.com";
+    expect(hasEnvironmentVariables()).toBe(false);
+  });
+});
+
+describe("isConfigurationProvided", () => {
+  let originalEnvironment: NodeJS.ProcessEnv;
+
+  beforeEach(() => {
+    originalEnvironment = { ...process.env };
+    // Clean all SEMANTIC_RELEASE_JIRA_* vars
+    for (const key of Object.keys(process.env)) {
+      if (key.startsWith("SEMANTIC_RELEASE_JIRA_")) {
+        delete process.env[key];
+      }
+    }
+  });
+
+  afterEach(() => {
+    process.env = originalEnvironment;
+  });
+
+  it("should return false when neither config nor env vars are provided", () => {
+    expect(isConfigurationProvided({})).toBe(false);
+  });
+
+  it("should return true when only config is provided", () => {
+    expect(isConfigurationProvided({ jiraServerUrl: "https://test.com" })).toBe(
+      true,
+    );
+  });
+
+  it("should return true when only env vars are provided", () => {
+    process.env.SEMANTIC_RELEASE_JIRA_SERVER_URL = "https://test.com";
+    expect(isConfigurationProvided({})).toBe(true);
+  });
+
+  it("should return true when both config and env vars are provided", () => {
+    process.env.SEMANTIC_RELEASE_JIRA_SERVER_URL = "https://test.com";
+    expect(isConfigurationProvided({ jiraApiToken: "token123" })).toBe(true);
+  });
+
+  it("should return true when multiple config properties are provided", () => {
+    expect(
+      isConfigurationProvided({
+        createVersions: true,
+        jiraServerUrl: "https://test.com",
+      }),
+    ).toBe(true);
+  });
+
+  it("should return true when multiple env vars are provided", () => {
+    process.env.SEMANTIC_RELEASE_JIRA_SERVER_URL = "https://test.com";
+    process.env.SEMANTIC_RELEASE_JIRA_DRY_RUN = "true";
+    expect(isConfigurationProvided({})).toBe(true);
+  });
+
+  it("should return false for config with only undefined values and no env vars", () => {
+    expect(
+      isConfigurationProvided({
+        jiraApiToken: undefined,
+        jiraServerUrl: undefined,
+      }),
+    ).toBe(false);
   });
 });
