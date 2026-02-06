@@ -22,6 +22,59 @@ export function getIssuePattern(config: ValidatedPluginConfig): RegExp {
 }
 
 /**
+ * Checks if any semantic-release-jira environment variables are set
+ * Returns true if ANY of the plugin-specific environment variables are defined
+ */
+export function hasEnvironmentVariables(): boolean {
+  const environmentVariables = [
+    "SEMANTIC_RELEASE_JIRA_SERVER_URL",
+    "SEMANTIC_RELEASE_JIRA_USERNAME",
+    "SEMANTIC_RELEASE_JIRA_API_TOKEN",
+    "SEMANTIC_RELEASE_JIRA_TRANSITION_ISSUES",
+    "SEMANTIC_RELEASE_JIRA_CREATE_VERSIONS",
+    "SEMANTIC_RELEASE_JIRA_DRY_RUN",
+    "SEMANTIC_RELEASE_JIRA_FAIL_ON_JIRA_ERROR",
+    "SEMANTIC_RELEASE_JIRA_REJECT_UNAUTHORIZED",
+    "SEMANTIC_RELEASE_JIRA_CONCURRENCY",
+    "SEMANTIC_RELEASE_JIRA_TIMEOUT",
+    "SEMANTIC_RELEASE_JIRA_RETRIES",
+    "SEMANTIC_RELEASE_JIRA_RETRY_DELAY",
+    "SEMANTIC_RELEASE_JIRA_TRANSITION_TO_STATUS",
+    "SEMANTIC_RELEASE_JIRA_VERSION_PREFIX",
+    "SEMANTIC_RELEASE_JIRA_CUSTOM_ISSUE_PATTERN",
+  ];
+
+  return environmentVariables.some(
+    (environmentVariable) => process.env[environmentVariable] !== undefined,
+  );
+}
+
+/**
+ * Checks if configuration has been provided either through config object or environment variables
+ * Returns true if EITHER isPluginEnabled(config) OR hasEnvironmentVariables() returns true
+ */
+export function isConfigurationProvided(
+  config: Partial<PluginConfig>,
+): boolean {
+  return isPluginEnabled(config) || hasEnvironmentVariables();
+}
+
+/**
+ * Checks if the plugin is enabled by verifying if any non-empty property exists in the config
+ * Returns true if the config object has any keys with defined, non-undefined values
+ */
+export function isPluginEnabled(config: Partial<PluginConfig>): boolean {
+  const entries = Object.entries(config);
+  for (const [, value] of entries) {
+    // eslint-disable-next-line sonarjs/different-types-comparison -- TypeScript infers union type but values can be undefined at runtime
+    if (value !== undefined) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Checks if a string contains unexpanded environment variables
  * Detects patterns like ${VAR} or $VAR that suggest failed env var expansion
  */
