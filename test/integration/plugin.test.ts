@@ -672,4 +672,96 @@ describe("SemanticReleaseJiraPlugin Integration", () => {
       expect(issueScope.isDone()).toBeTruthy();
     });
   });
+
+  describe("Plugin Noop Behavior", () => {
+    let originalEnvironment: NodeJS.ProcessEnv;
+
+    beforeEach(() => {
+      originalEnvironment = { ...process.env };
+      // Clean all SEMANTIC_RELEASE_JIRA_* vars
+      for (const key of Object.keys(process.env)) {
+        if (key.startsWith("SEMANTIC_RELEASE_JIRA_")) {
+          delete process.env[key];
+        }
+      }
+    });
+
+    afterEach(() => {
+      process.env = originalEnvironment;
+    });
+
+    it("should be disabled when no configuration provided", async () => {
+      const context = createMockContext();
+
+      // Import the exported functions (not the class)
+      const { analyzeCommits, generateNotes, success, verifyConditions } =
+        await import("~/index.js");
+
+      // All lifecycle hooks should return early without error
+      await expect(verifyConditions({}, context)).resolves.not.toThrow();
+      await expect(analyzeCommits({}, context)).resolves.not.toThrow();
+      const notes = await generateNotes({}, context);
+      expect(notes).toBe("");
+      await expect(success({}, context)).resolves.not.toThrow();
+
+      // Verify the log message was emitted
+      expectLogContains(context.logger, "No configuration detected");
+    });
+
+    it("should be enabled when environment variables are set", async () => {
+      process.env.SEMANTIC_RELEASE_JIRA_SERVER_URL = jiraServerUrl;
+      process.env.SEMANTIC_RELEASE_JIRA_USERNAME = jiraUsername;
+      process.env.SEMANTIC_RELEASE_JIRA_API_TOKEN = jiraApiToken;
+
+      // Use the class directly - env vars are read during validateConfig
+      const plugin = new SemanticReleaseJiraPlugin();
+      const context = createMockContext();
+
+      // Mock Jira authentication
+      const authScope = mockJiraAuth({
+        serverUrl: jiraServerUrl,
+        username: jiraUsername,
+      });
+
+      // Mock issue verification
+      const issueScope = mockJiraIssueVerification(jiraServerUrl, [
+        "PROJ-123",
+        "PROJ-456",
+      ]);
+
+      // Plugin should activate via env vars and make API calls
+      await plugin.verifyConditions({}, context);
+      await plugin.analyzeCommits({}, context);
+
+      expect(authScope.isDone()).toBeTruthy();
+      expect(issueScope.isDone()).toBeTruthy();
+    });
+
+    it("should be enabled when config options are provided", async () => {
+      // This test validates that config-based enablement works
+      // (complementary to the many other tests that use config)
+      const plugin = new SemanticReleaseJiraPlugin();
+      const context = createMockContext();
+      const config = createPluginConfig();
+
+      // Mock Jira authentication
+      const authScope = mockJiraAuth({
+        serverUrl: jiraServerUrl,
+        username: jiraUsername,
+      });
+
+      // Mock issue verification
+      const issueScope = mockJiraIssueVerification(jiraServerUrl, [
+        "PROJ-123",
+        "PROJ-456",
+      ]);
+
+      // Plugin should activate and make API calls
+      await plugin.verifyConditions(config, context);
+      await plugin.analyzeCommits(config, context);
+
+      expect(authScope.isDone()).toBeTruthy();
+      expect(issueScope.isDone()).toBeTruthy();
+    });
+  });
 });
