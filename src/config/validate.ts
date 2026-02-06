@@ -54,20 +54,42 @@ export function hasEnvironmentVariables(): boolean {
  * Returns true if EITHER isPluginEnabled(config) OR hasEnvironmentVariables() returns true
  */
 export function isConfigurationProvided(
-  config: Partial<PluginConfig>,
+  config: Record<string, unknown>,
 ): boolean {
   return isPluginEnabled(config) || hasEnvironmentVariables();
 }
 
 /**
- * Checks if the plugin is enabled by verifying if any non-empty property exists in the config
- * Returns true if the config object has any keys with defined, non-undefined values
+ * Known PluginConfig property names used to filter out
+ * extra properties that semantic-release merges into pluginConfig
  */
-export function isPluginEnabled(config: Partial<PluginConfig>): boolean {
-  const entries = Object.entries(config);
-  for (const [, value] of entries) {
-    // eslint-disable-next-line sonarjs/different-types-comparison -- TypeScript infers union type but values can be undefined at runtime
-    if (value !== undefined) {
+const KNOWN_CONFIG_KEYS: ReadonlySet<string> = new Set([
+  "concurrency",
+  "createVersions",
+  "customIssuePattern",
+  "dryRun",
+  "failOnJiraError",
+  "jiraApiToken",
+  "jiraServerUrl",
+  "jiraUsername",
+  "rejectUnauthorized",
+  "retries",
+  "retryDelay",
+  "timeout",
+  "transitionIssues",
+  "transitionToStatus",
+  "versionPrefix",
+]);
+
+/**
+ * Checks if the plugin is enabled by verifying if any known PluginConfig property is set.
+ * Only checks keys defined in the PluginConfig interface to avoid false positives from
+ * extra properties that semantic-release merges into the pluginConfig object (e.g. branches,
+ * repositoryUrl, tagFormat).
+ */
+export function isPluginEnabled(config: Record<string, unknown>): boolean {
+  for (const [key, value] of Object.entries(config)) {
+    if (KNOWN_CONFIG_KEYS.has(key) && value !== undefined) {
       return true;
     }
   }

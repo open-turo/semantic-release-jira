@@ -402,6 +402,30 @@ describe("isPluginEnabled", () => {
       }),
     ).toBe(false);
   });
+
+  it("should ignore unknown properties from semantic-release global config", () => {
+    // semantic-release merges global options (branches, repositoryUrl, etc.)
+    // into pluginConfig - these should be ignored
+    expect(
+      isPluginEnabled({
+        branches: ["main"],
+        ci: true,
+        plugins: ["@open-turo/semantic-release-jira"],
+        repositoryUrl: "https://github.com/org/repo",
+        tagFormat: "v${version}",
+      }),
+    ).toBe(false);
+  });
+
+  it("should detect known properties even when mixed with unknown ones", () => {
+    expect(
+      isPluginEnabled({
+        branches: ["main"],
+        jiraServerUrl: "https://test.com",
+        repositoryUrl: "https://github.com/org/repo",
+      }),
+    ).toBe(true);
+  });
 });
 
 describe("hasEnvironmentVariables", () => {
