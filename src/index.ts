@@ -137,7 +137,11 @@ export class SemanticReleaseJiraPlugin {
       operation: "analyzeCommits",
     });
 
-    const pullRequests = await this.fetchGitHubPullRequests(commits, env);
+    const pullRequests = await this.fetchGitHubPullRequests(
+      commits,
+      env,
+      branch.name,
+    );
 
     for (const pr of pullRequests) {
       this.logger.log(
@@ -397,6 +401,7 @@ export class SemanticReleaseJiraPlugin {
   private async fetchGitHubPullRequests(
     commits: Array<{ hash: string; message: string }>,
     environment: Record<string, string | undefined>,
+    branchName?: string,
   ): Promise<GitHubPullRequest[]> {
     const githubConfig = detectGitHubRepo(environment);
 
@@ -419,6 +424,7 @@ export class SemanticReleaseJiraPlugin {
         githubConfig.owner,
         githubConfig.repo,
         commitShas,
+        branchName,
       );
 
       this.logger.log(

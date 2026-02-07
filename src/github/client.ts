@@ -46,13 +46,15 @@ export function detectGitHubRepo(
 }
 
 /**
- * Fetches pull requests associated with commit SHAs
+ * Fetches pull requests associated with commit SHAs.
+ * Includes merged PRs and the current branch's open PR (if any).
  */
 export async function fetchPullRequestsForCommits(
   client: Octokit,
   owner: string,
   repo: string,
   commitShas: string[],
+  branchName?: string,
 ): Promise<GitHubPullRequest[]> {
   const pullRequests: GitHubPullRequest[] = [];
   const seenPRs = new Set<number>();
@@ -66,12 +68,19 @@ export async function fetchPullRequestsForCommits(
       });
 
       for (const pr of data) {
-        // Only include merged PRs and avoid duplicates
-        if (pr.merged_at && !seenPRs.has(pr.number)) {
+        if (seenPRs.has(pr.number)) {
+          continue;
+        }
+
+        const isCurrentBranchPR =
+          branchName !== undefined && pr.head.ref === branchName;
+
+        // Include merged PRs and the current branch's open PR
+        if (pr.merged_at || isCurrentBranchPR) {
           seenPRs.add(pr.number);
           pullRequests.push({
             body: pr.body ?? undefined,
-            merged: true,
+            merged: Boolean(pr.merged_at),
             number: pr.number,
             state: pr.state,
           });
