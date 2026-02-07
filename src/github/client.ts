@@ -50,6 +50,7 @@ const DEFAULT_GITHUB_CONCURRENCY = 5;
 
 /**
  * Fetches pull requests associated with commit SHAs.
+ * Includes merged PRs and the current branch's open PR (if any).
  * Requests are fanned out in parallel up to `concurrencyLimit` at a time.
  */
 export async function fetchPullRequestsForCommits(
@@ -57,6 +58,7 @@ export async function fetchPullRequestsForCommits(
   owner: string,
   repo: string,
   commitShas: string[],
+  branchName?: string,
   concurrencyLimit: number = DEFAULT_GITHUB_CONCURRENCY,
 ): Promise<GitHubPullRequest[]> {
   const limit = pLimit(concurrencyLimit);
@@ -83,12 +85,19 @@ export async function fetchPullRequestsForCommits(
     }
 
     for (const pr of result.value.data) {
-      // Only include merged PRs and avoid duplicates
-      if (pr.merged_at && !seenPRs.has(pr.number)) {
+      if (seenPRs.has(pr.number)) {
+        continue;
+      }
+
+      const isCurrentBranchPR =
+        branchName !== undefined && pr.head.ref === branchName;
+
+      // Include merged PRs and the current branch's open PR
+      if (pr.merged_at || isCurrentBranchPR) {
         seenPRs.add(pr.number);
         pullRequests.push({
           body: pr.body ?? undefined,
-          merged: true,
+          merged: Boolean(pr.merged_at),
           number: pr.number,
           state: pr.state,
         });
