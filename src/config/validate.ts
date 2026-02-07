@@ -60,36 +60,31 @@ export function isConfigurationProvided(
 }
 
 /**
- * Known PluginConfig property names used to filter out
- * extra properties that semantic-release merges into pluginConfig
+ * Plugin-specific config keys that cannot come from semantic-release global options.
+ * semantic-release merges its global options (branches, repositoryUrl, tagFormat, dryRun, etc.)
+ * into pluginConfig via `{ ...options, ...config }`. Generic keys like dryRun, timeout, retries,
+ * and concurrency are excluded because they overlap with semantic-release global options.
  */
-const KNOWN_CONFIG_KEYS: ReadonlySet<string> = new Set([
-  "concurrency",
+const PLUGIN_SPECIFIC_KEYS: ReadonlySet<string> = new Set([
   "createVersions",
   "customIssuePattern",
-  "dryRun",
   "failOnJiraError",
   "jiraApiToken",
   "jiraServerUrl",
   "jiraUsername",
-  "rejectUnauthorized",
-  "retries",
-  "retryDelay",
-  "timeout",
   "transitionIssues",
   "transitionToStatus",
   "versionPrefix",
 ]);
 
 /**
- * Checks if the plugin is enabled by verifying if any known PluginConfig property is set.
- * Only checks keys defined in the PluginConfig interface to avoid false positives from
- * extra properties that semantic-release merges into the pluginConfig object (e.g. branches,
- * repositoryUrl, tagFormat).
+ * Checks if the plugin is enabled by verifying if any plugin-specific config property is set.
+ * Only checks keys that are unambiguously plugin-specific to avoid false positives from
+ * semantic-release global options merged into the pluginConfig object.
  */
 export function isPluginEnabled(config: Record<string, unknown>): boolean {
   for (const [key, value] of Object.entries(config)) {
-    if (KNOWN_CONFIG_KEYS.has(key) && value !== undefined) {
+    if (PLUGIN_SPECIFIC_KEYS.has(key) && value !== undefined) {
       return true;
     }
   }
