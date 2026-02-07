@@ -133,7 +133,22 @@ export class SemanticReleaseJiraPlugin {
 
     const issuePattern = getIssuePattern(this.config);
 
+    this.logger.log(`Branch name: ${branch.name}`, {
+      operation: "analyzeCommits",
+    });
+
     const pullRequests = await this.fetchGitHubPullRequests(commits, env);
+
+    for (const pr of pullRequests) {
+      this.logger.log(
+        `PR #${String(pr.number)} (state: ${pr.state}, merged: ${String(pr.merged)})`,
+        {
+          body: pr.body ?? "(empty)",
+          operation: "analyzeCommits",
+        },
+      );
+    }
+
     const collected = collectIssues(
       commits,
       branch.name,
