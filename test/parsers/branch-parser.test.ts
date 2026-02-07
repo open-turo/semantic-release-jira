@@ -51,11 +51,19 @@ describe("parseBranchForIssues", () => {
     expectSetToContain(issues, "PROJECT-789");
   });
 
-  it("should not match lowercase issue keys", () => {
+  it("should match lowercase issue keys and normalize to uppercase", () => {
     const issues = parseBranchForIssues(
       "feature/project-123-add-feature",
       issuePattern,
     );
-    expectEmptySet(issues);
+    expectSetToContain(issues, "PROJECT-123");
+  });
+
+  it("should match mixed case issue keys from branch name", () => {
+    const issues = parseBranchForIssues(
+      "c/devops-13046_test_semantic-release-jira",
+      issuePattern,
+    );
+    expectSetToContain(issues, "DEVOPS-13046");
   });
 });
