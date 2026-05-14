@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { generateVersionName } from "~/jira/versions.js";
+import { generateVersionName } from "~/jira/client.js";
 
 describe("generateVersionName", () => {
   const serviceName = "my-service";

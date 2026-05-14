@@ -7,15 +7,7 @@
 import nock from "nock";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import {
-  addVersionToIssue,
-  createJiraClient,
-  createVersion,
-  getIssueDetails,
-  getIssueTransitions,
-  transitionIssue,
-  verifyIssueExists,
-} from "~/jira/client.js";
+import { JiraClient } from "~/jira/client.js";
 
 import {
   setupNockEnvironment,
@@ -35,47 +27,42 @@ describe("Jira Client Integration", () => {
     teardownNockEnvironment();
   });
 
-  describe("createJiraClient", () => {
+  describe("JiraClient constructor", () => {
     it("should create client with authentication", () => {
-      const client = createJiraClient({
+      const jira = new JiraClient({
         apiToken,
         serverUrl,
         username,
       });
 
-      expect(client.defaults.baseURL).toBe(serverUrl);
-      expect(client.defaults.headers?.["Content-Type"]).toBe(
-        "application/json",
-      );
-      expect(client.defaults.headers?.Authorization).toBeDefined();
+      expect(jira).toBeInstanceOf(JiraClient);
     });
 
     it("should create client without authentication", () => {
-      const client = createJiraClient({
+      const jira = new JiraClient({
         serverUrl,
       });
 
-      expect(client.defaults.baseURL).toBe(serverUrl);
-      expect(client.defaults.headers?.Authorization).toBeUndefined();
+      expect(jira).toBeInstanceOf(JiraClient);
     });
 
     it("should create client with custom timeout", () => {
-      const client = createJiraClient({
+      const jira = new JiraClient({
         serverUrl,
         timeout: 60_000,
       });
 
-      expect(client.defaults.timeout).toBe(60_000);
+      expect(jira).toBeInstanceOf(JiraClient);
     });
 
     it("should create client with custom retry configuration", () => {
-      const client = createJiraClient({
+      const jira = new JiraClient({
         retries: 5,
         retryDelay: 2000,
         serverUrl,
       });
 
-      expect(client).toBeDefined();
+      expect(jira).toBeDefined();
       // Retry configuration is internal to axios-retry
     });
   });
@@ -91,8 +78,8 @@ describe("Jira Client Integration", () => {
           key: "PROJ-123",
         });
 
-      const client = createJiraClient({ serverUrl });
-      const details = await getIssueDetails(client, "PROJ-123");
+      const jira = new JiraClient({ serverUrl });
+      const details = await jira.getIssueDetails("PROJ-123");
 
       expect(details).toEqual({
         key: "PROJ-123",
@@ -108,8 +95,8 @@ describe("Jira Client Integration", () => {
           errorMessages: ["Issue does not exist or you do not have permission"],
         });
 
-      const client = createJiraClient({ serverUrl });
-      const details = await getIssueDetails(client, "PROJ-999");
+      const jira = new JiraClient({ serverUrl });
+      const details = await jira.getIssueDetails("PROJ-999");
 
       expect(details).toBeUndefined();
       expect(scope.isDone()).toBeTruthy();
@@ -123,8 +110,8 @@ describe("Jira Client Integration", () => {
           message: "Connection refused",
         });
 
-      const client = createJiraClient({ retries: 0, serverUrl });
-      const details = await getIssueDetails(client, "PROJ-123");
+      const jira = new JiraClient({ retries: 0, serverUrl });
+      const details = await jira.getIssueDetails("PROJ-123");
 
       expect(details).toBeUndefined();
       expect(scope.isDone()).toBeTruthy();
@@ -137,8 +124,8 @@ describe("Jira Client Integration", () => {
           errorMessages: ["Authentication required"],
         });
 
-      const client = createJiraClient({ serverUrl });
-      const details = await getIssueDetails(client, "PROJ-123");
+      const jira = new JiraClient({ serverUrl });
+      const details = await jira.getIssueDetails("PROJ-123");
 
       expect(details).toBeUndefined();
       expect(scope.isDone()).toBeTruthy();
@@ -151,8 +138,8 @@ describe("Jira Client Integration", () => {
           errorMessages: ["Internal server error"],
         });
 
-      const client = createJiraClient({ retries: 0, serverUrl });
-      const details = await getIssueDetails(client, "PROJ-123");
+      const jira = new JiraClient({ retries: 0, serverUrl });
+      const details = await jira.getIssueDetails("PROJ-123");
 
       expect(details).toBeUndefined();
       expect(scope.isDone()).toBeTruthy();
@@ -168,12 +155,12 @@ describe("Jira Client Integration", () => {
           key: "PROJ-123",
         });
 
-      const client = createJiraClient({
+      const jira = new JiraClient({
         retries: 2,
         retryDelay: 100,
         serverUrl,
       });
-      const details = await getIssueDetails(client, "PROJ-123");
+      const details = await jira.getIssueDetails("PROJ-123");
 
       expect(details).toEqual({
         key: "PROJ-123",
@@ -192,8 +179,8 @@ describe("Jira Client Integration", () => {
           key: "PROJ-123",
         });
 
-      const client = createJiraClient({ serverUrl });
-      const details = await getIssueDetails(client, "PROJ-123");
+      const jira = new JiraClient({ serverUrl });
+      const details = await jira.getIssueDetails("PROJ-123");
 
       expect(details).toEqual({
         key: "PROJ-123",
@@ -212,8 +199,8 @@ describe("Jira Client Integration", () => {
           key: "PROJ-123",
         });
 
-      const client = createJiraClient({ serverUrl });
-      const details = await getIssueDetails(client, "PROJ-123");
+      const jira = new JiraClient({ serverUrl });
+      const details = await jira.getIssueDetails("PROJ-123");
 
       expect(details).toEqual({
         key: "PROJ-123",
@@ -232,8 +219,8 @@ describe("Jira Client Integration", () => {
           key: "PROJ-123",
         });
 
-      const client = createJiraClient({ serverUrl });
-      const exists = await verifyIssueExists(client, "PROJ-123");
+      const jira = new JiraClient({ serverUrl });
+      const exists = await jira.verifyIssueExists("PROJ-123");
 
       expect(exists).toBe(true);
       expect(scope.isDone()).toBeTruthy();
@@ -246,8 +233,8 @@ describe("Jira Client Integration", () => {
           errorMessages: ["Issue does not exist or you do not have permission"],
         });
 
-      const client = createJiraClient({ serverUrl });
-      const exists = await verifyIssueExists(client, "PROJ-999");
+      const jira = new JiraClient({ serverUrl });
+      const exists = await jira.verifyIssueExists("PROJ-999");
 
       expect(exists).toBe(false);
       expect(scope.isDone()).toBeTruthy();
@@ -261,8 +248,8 @@ describe("Jira Client Integration", () => {
           message: "Connection refused",
         });
 
-      const client = createJiraClient({ retries: 0, serverUrl });
-      const exists = await verifyIssueExists(client, "PROJ-123");
+      const jira = new JiraClient({ retries: 0, serverUrl });
+      const exists = await jira.verifyIssueExists("PROJ-123");
 
       expect(exists).toBe(false);
       expect(scope.isDone()).toBeTruthy();
@@ -275,8 +262,8 @@ describe("Jira Client Integration", () => {
           errorMessages: ["Authentication required"],
         });
 
-      const client = createJiraClient({ serverUrl });
-      const exists = await verifyIssueExists(client, "PROJ-123");
+      const jira = new JiraClient({ serverUrl });
+      const exists = await jira.verifyIssueExists("PROJ-123");
 
       expect(exists).toBe(false);
       expect(scope.isDone()).toBeTruthy();
@@ -289,8 +276,8 @@ describe("Jira Client Integration", () => {
           errorMessages: ["Internal server error"],
         });
 
-      const client = createJiraClient({ retries: 0, serverUrl });
-      const exists = await verifyIssueExists(client, "PROJ-123");
+      const jira = new JiraClient({ retries: 0, serverUrl });
+      const exists = await jira.verifyIssueExists("PROJ-123");
 
       expect(exists).toBe(false);
       expect(scope.isDone()).toBeTruthy();
@@ -303,12 +290,12 @@ describe("Jira Client Integration", () => {
         .get("/rest/api/2/issue/PROJ-123?fields=key")
         .reply(200, { key: "PROJ-123" });
 
-      const client = createJiraClient({
+      const jira = new JiraClient({
         retries: 2,
         retryDelay: 100,
         serverUrl,
       });
-      const exists = await verifyIssueExists(client, "PROJ-123");
+      const exists = await jira.verifyIssueExists("PROJ-123");
 
       expect(exists).toBe(true);
       expect(scope.isDone()).toBeTruthy();
@@ -331,8 +318,8 @@ describe("Jira Client Integration", () => {
           ],
         });
 
-      const client = createJiraClient({ serverUrl });
-      const transitions = await getIssueTransitions(client, "PROJ-123");
+      const jira = new JiraClient({ serverUrl });
+      const transitions = await jira.getIssueTransitions("PROJ-123");
 
       expect(transitions).toHaveLength(3);
       expect(transitions[0]).toEqual({
@@ -351,8 +338,8 @@ describe("Jira Client Integration", () => {
           transitions: [],
         });
 
-      const client = createJiraClient({ serverUrl });
-      const transitions = await getIssueTransitions(client, "PROJ-123");
+      const jira = new JiraClient({ serverUrl });
+      const transitions = await jira.getIssueTransitions("PROJ-123");
 
       expect(transitions).toEqual([]);
       expect(scope.isDone()).toBeTruthy();
@@ -365,9 +352,9 @@ describe("Jira Client Integration", () => {
           errorMessages: ["Issue does not exist"],
         });
 
-      const client = createJiraClient({ retries: 0, serverUrl });
+      const jira = new JiraClient({ retries: 0, serverUrl });
 
-      await expect(getIssueTransitions(client, "PROJ-999")).rejects.toThrow();
+      await expect(jira.getIssueTransitions("PROJ-999")).rejects.toThrow();
       expect(scope.isDone()).toBeTruthy();
     });
 
@@ -384,12 +371,12 @@ describe("Jira Client Integration", () => {
           ],
         });
 
-      const client = createJiraClient({
+      const jira = new JiraClient({
         retries: 2,
         retryDelay: 100,
         serverUrl,
       });
-      const transitions = await getIssueTransitions(client, "PROJ-123");
+      const transitions = await jira.getIssueTransitions("PROJ-123");
 
       expect(transitions).toHaveLength(1);
       expect(scope.isDone()).toBeTruthy();
@@ -404,9 +391,9 @@ describe("Jira Client Integration", () => {
         })
         .reply(204);
 
-      const client = createJiraClient({ serverUrl });
+      const jira = new JiraClient({ serverUrl });
       await expect(
-        transitionIssue(client, "PROJ-123", "31"),
+        jira.transitionIssue("PROJ-123", "31"),
       ).resolves.not.toThrow();
 
       expect(scope.isDone()).toBeTruthy();
@@ -421,11 +408,9 @@ describe("Jira Client Integration", () => {
           errorMessages: ["Transition id 999 is not valid"],
         });
 
-      const client = createJiraClient({ retries: 0, serverUrl });
+      const jira = new JiraClient({ retries: 0, serverUrl });
 
-      await expect(
-        transitionIssue(client, "PROJ-123", "999"),
-      ).rejects.toThrow();
+      await expect(jira.transitionIssue("PROJ-123", "999")).rejects.toThrow();
       expect(scope.isDone()).toBeTruthy();
     });
 
@@ -436,9 +421,9 @@ describe("Jira Client Integration", () => {
           errorMessages: ["Issue does not exist"],
         });
 
-      const client = createJiraClient({ retries: 0, serverUrl });
+      const jira = new JiraClient({ retries: 0, serverUrl });
 
-      await expect(transitionIssue(client, "PROJ-999", "31")).rejects.toThrow();
+      await expect(jira.transitionIssue("PROJ-999", "31")).rejects.toThrow();
       expect(scope.isDone()).toBeTruthy();
     });
 
@@ -453,14 +438,14 @@ describe("Jira Client Integration", () => {
         })
         .reply(204);
 
-      const client = createJiraClient({
+      const jira = new JiraClient({
         retries: 2,
         retryDelay: 100,
         serverUrl,
       });
 
       await expect(
-        transitionIssue(client, "PROJ-123", "31"),
+        jira.transitionIssue("PROJ-123", "31"),
       ).resolves.not.toThrow();
       expect(scope.isDone()).toBeTruthy();
     });
@@ -472,9 +457,9 @@ describe("Jira Client Integration", () => {
           errorMessages: ["Authentication required"],
         });
 
-      const client = createJiraClient({ retries: 0, serverUrl });
+      const jira = new JiraClient({ retries: 0, serverUrl });
 
-      await expect(transitionIssue(client, "PROJ-123", "31")).rejects.toThrow();
+      await expect(jira.transitionIssue("PROJ-123", "31")).rejects.toThrow();
       expect(scope.isDone()).toBeTruthy();
     });
   });
@@ -496,8 +481,8 @@ describe("Jira Client Integration", () => {
           projectId: "10000",
         });
 
-      const client = createJiraClient({ serverUrl });
-      const version = await createVersion(client, "PROJ", "v2.0.0");
+      const jira = new JiraClient({ serverUrl });
+      const version = await jira.createVersion("PROJ", "v2.0.0");
 
       expect(version).toEqual({
         id: "20001",
@@ -517,8 +502,8 @@ describe("Jira Client Integration", () => {
           { id: "20001", name: "v2.0.0", projectId: "10000" },
         ]);
 
-      const client = createJiraClient({ serverUrl });
-      const version = await createVersion(client, "PROJ", "v2.0.0");
+      const jira = new JiraClient({ serverUrl });
+      const version = await jira.createVersion("PROJ", "v2.0.0");
 
       expect(version).toEqual({
         id: "20001",
@@ -535,9 +520,9 @@ describe("Jira Client Integration", () => {
           errorMessages: ["Project does not exist"],
         });
 
-      const client = createJiraClient({ retries: 0, serverUrl });
+      const jira = new JiraClient({ retries: 0, serverUrl });
 
-      await expect(createVersion(client, "INVALID", "v1.0.0")).rejects.toThrow(
+      await expect(jira.createVersion("INVALID", "v1.0.0")).rejects.toThrow(
         /Failed to create version/,
       );
       expect(scope.isDone()).toBeTruthy();
@@ -550,9 +535,9 @@ describe("Jira Client Integration", () => {
           errorMessages: ["You do not have permission to view this project"],
         });
 
-      const client = createJiraClient({ retries: 0, serverUrl });
+      const jira = new JiraClient({ retries: 0, serverUrl });
 
-      await expect(createVersion(client, "PROJ", "v1.0.0")).rejects.toThrow(
+      await expect(jira.createVersion("PROJ", "v1.0.0")).rejects.toThrow(
         /Failed to create version/,
       );
       expect(scope.isDone()).toBeTruthy();
@@ -572,9 +557,9 @@ describe("Jira Client Integration", () => {
           errorMessages: ["A version with this name already exists"],
         });
 
-      const client = createJiraClient({ retries: 0, serverUrl });
+      const jira = new JiraClient({ retries: 0, serverUrl });
 
-      await expect(createVersion(client, "PROJ", "v1.0.0")).rejects.toThrow(
+      await expect(jira.createVersion("PROJ", "v1.0.0")).rejects.toThrow(
         /Failed to create version/,
       );
       expect(scope.isDone()).toBeTruthy();
@@ -598,12 +583,12 @@ describe("Jira Client Integration", () => {
           projectId: "10000",
         });
 
-      const client = createJiraClient({
+      const jira = new JiraClient({
         retries: 2,
         retryDelay: 100,
         serverUrl,
       });
-      const version = await createVersion(client, "PROJ", "v1.0.0");
+      const version = await jira.createVersion("PROJ", "v1.0.0");
 
       expect(version.id).toBe("20001");
       expect(scope.isDone()).toBeTruthy();
@@ -624,12 +609,12 @@ describe("Jira Client Integration", () => {
           projectId: "10000",
         });
 
-      const client = createJiraClient({
+      const jira = new JiraClient({
         retries: 2,
         retryDelay: 100,
         serverUrl,
       });
-      const version = await createVersion(client, "PROJ", "v1.0.0");
+      const version = await jira.createVersion("PROJ", "v1.0.0");
 
       expect(version.id).toBe("20001");
       expect(scope.isDone()).toBeTruthy();
@@ -648,8 +633,8 @@ describe("Jira Client Integration", () => {
           projectId: "10000",
         });
 
-      const client = createJiraClient({ serverUrl });
-      const version = await createVersion(client, "PROJ", "v1.0.0");
+      const jira = new JiraClient({ serverUrl });
+      const version = await jira.createVersion("PROJ", "v1.0.0");
 
       expect(version.id).toBe("20001");
       expect(scope.isDone()).toBeTruthy();
@@ -666,9 +651,9 @@ describe("Jira Client Integration", () => {
         })
         .reply(204);
 
-      const client = createJiraClient({ serverUrl });
+      const jira = new JiraClient({ serverUrl });
       await expect(
-        addVersionToIssue(client, "PROJ-123", "20000"),
+        jira.addVersionToIssue("PROJ-123", "20000"),
       ).resolves.not.toThrow();
 
       expect(scope.isDone()).toBeTruthy();
@@ -681,10 +666,10 @@ describe("Jira Client Integration", () => {
           errorMessages: ["Issue does not exist"],
         });
 
-      const client = createJiraClient({ retries: 0, serverUrl });
+      const jira = new JiraClient({ retries: 0, serverUrl });
 
       await expect(
-        addVersionToIssue(client, "PROJ-999", "20000"),
+        jira.addVersionToIssue("PROJ-999", "20000"),
       ).rejects.toThrow();
       expect(scope.isDone()).toBeTruthy();
     });
@@ -700,10 +685,10 @@ describe("Jira Client Integration", () => {
           errorMessages: ["Version 99999 does not exist"],
         });
 
-      const client = createJiraClient({ retries: 0, serverUrl });
+      const jira = new JiraClient({ retries: 0, serverUrl });
 
       await expect(
-        addVersionToIssue(client, "PROJ-123", "99999"),
+        jira.addVersionToIssue("PROJ-123", "99999"),
       ).rejects.toThrow();
       expect(scope.isDone()).toBeTruthy();
     });
@@ -723,14 +708,14 @@ describe("Jira Client Integration", () => {
         })
         .reply(204);
 
-      const client = createJiraClient({
+      const jira = new JiraClient({
         retries: 2,
         retryDelay: 100,
         serverUrl,
       });
 
       await expect(
-        addVersionToIssue(client, "PROJ-123", "20000"),
+        jira.addVersionToIssue("PROJ-123", "20000"),
       ).resolves.not.toThrow();
       expect(scope.isDone()).toBeTruthy();
     });
@@ -742,10 +727,10 @@ describe("Jira Client Integration", () => {
           errorMessages: ["You do not have permission to edit this issue"],
         });
 
-      const client = createJiraClient({ retries: 0, serverUrl });
+      const jira = new JiraClient({ retries: 0, serverUrl });
 
       await expect(
-        addVersionToIssue(client, "PROJ-123", "20000"),
+        jira.addVersionToIssue("PROJ-123", "20000"),
       ).rejects.toThrow();
       expect(scope.isDone()).toBeTruthy();
     });
@@ -782,15 +767,15 @@ describe("Jira Client Integration", () => {
         })
         .reply(204);
 
-      const client = createJiraClient({ serverUrl });
+      const jira = new JiraClient({ serverUrl });
 
       // Create version
-      const version = await createVersion(client, "PROJ", "v1.0.0");
+      const version = await jira.createVersion("PROJ", "v1.0.0");
       expect(version.id).toBe("20000");
 
       // Associate with multiple issues
-      await addVersionToIssue(client, "PROJ-123", version.id);
-      await addVersionToIssue(client, "PROJ-456", version.id);
+      await jira.addVersionToIssue("PROJ-123", version.id);
+      await jira.addVersionToIssue("PROJ-456", version.id);
 
       expect(scope.isDone()).toBeTruthy();
     });
@@ -815,15 +800,15 @@ describe("Jira Client Integration", () => {
         })
         .reply(204);
 
-      const client = createJiraClient({ serverUrl });
+      const jira = new JiraClient({ serverUrl });
 
       // Get available transitions
-      const transitions = await getIssueTransitions(client, "PROJ-123");
+      const transitions = await jira.getIssueTransitions("PROJ-123");
       const doneTransition = transitions.find((t) => t.name === "Done");
       expect(doneTransition).toBeDefined();
 
       // Transition to Done
-      await transitionIssue(client, "PROJ-123", doneTransition!.id);
+      await jira.transitionIssue("PROJ-123", doneTransition!.id);
 
       expect(scope.isDone()).toBeTruthy();
     });
@@ -840,13 +825,13 @@ describe("Jira Client Integration", () => {
         .get("/rest/api/2/issue/PROJ-123?fields=key")
         .reply(200, { key: "PROJ-123" });
 
-      const client = createJiraClient({
+      const jira = new JiraClient({
         retries: 3,
         retryDelay: 100,
         serverUrl,
       });
 
-      const exists = await verifyIssueExists(client, "PROJ-123");
+      const exists = await jira.verifyIssueExists("PROJ-123");
       expect(exists).toBe(true);
 
       expect(scope.isDone()).toBeTruthy();
@@ -867,11 +852,11 @@ describe("Jira Client Integration", () => {
         .get("/rest/api/2/issue/PROJ-789?fields=summary")
         .reply(404);
 
-      const client = createJiraClient({ serverUrl });
+      const jira = new JiraClient({ serverUrl });
 
-      const details1 = await getIssueDetails(client, "PROJ-123");
-      const details2 = await getIssueDetails(client, "PROJ-456");
-      const details3 = await getIssueDetails(client, "PROJ-789");
+      const details1 = await jira.getIssueDetails("PROJ-123");
+      const details2 = await jira.getIssueDetails("PROJ-456");
+      const details3 = await jira.getIssueDetails("PROJ-789");
 
       expect(details1).toEqual({
         key: "PROJ-123",

@@ -6,6 +6,9 @@ import { Octokit } from "@octokit/rest";
 import pLimit from "p-limit";
 
 import type { GitHubPullRequest } from "~/types/index.js";
+import type { StructuredLogger } from "~/utils/logger.js";
+
+import { getErrorMessage } from "~/utils/error.js";
 
 export interface GitHubConfig {
   owner: string;
@@ -47,6 +50,63 @@ export function detectGitHubRepo(
 }
 
 const DEFAULT_GITHUB_CONCURRENCY = 5;
+
+/**
+ * Fetches GitHub pull requests for a set of commits with error handling.
+ * Returns empty array when not in a GitHub environment or on API errors.
+ */
+export async function fetchGitHubPullRequests(
+  commits: Array<{ hash: string; message: string }>,
+  environment: Record<string, string | undefined>,
+  options: {
+    branchName?: string;
+    concurrency: number;
+    logger: StructuredLogger;
+  },
+): Promise<GitHubPullRequest[]> {
+  const githubConfig = detectGitHubRepo(environment);
+
+  if (!githubConfig) {
+    options.logger.log(
+      "Not running in GitHub environment - skipping PR parsing",
+      { operation: "fetchPullRequests" },
+    );
+    return [];
+  }
+
+  try {
+    const client = createGitHubClient(githubConfig.token);
+    const commitShas = commits.map((c) => c.hash);
+
+    const pullRequests = await fetchPullRequestsForCommits(
+      client,
+      githubConfig.owner,
+      githubConfig.repo,
+      commitShas,
+      options.branchName,
+      options.concurrency,
+    );
+
+    options.logger.log(
+      `Fetched ${pullRequests.length} pull requests from GitHub`,
+      {
+        operation: "fetchPullRequests",
+        prCount: pullRequests.length,
+      },
+    );
+    return pullRequests;
+  } catch (error) {
+    options.logger.log(
+      `Could not fetch GitHub PRs: ${getErrorMessage(error)}`,
+      {
+        error: error,
+        operation: "fetchPullRequests",
+        success: false,
+      },
+    );
+    return [];
+  }
+}
 
 /**
  * Fetches pull requests associated with commit SHAs.
