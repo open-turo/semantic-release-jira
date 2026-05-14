@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { JiraTransition } from "~/types/index.js";
 
-import { findDoneTransition } from "~/jira/transitions.js";
+import { findDoneTransition } from "~/jira/client.js";
 
 function createTransition(
   id: string,
