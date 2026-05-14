@@ -25,8 +25,7 @@ export function parseCommitsForIssues(
       parsed.body,
       parsed.footer,
       ...parsed.references.map((reference: { raw: string }) => reference.raw),
-      // eslint-disable-next-line unicorn/prefer-native-coercion-functions -- Type guard required for TypeScript
-    ].filter((part): part is string => Boolean(part));
+    ].filter((part): part is string => typeof part === "string");
 
     for (const issue of extractIssuesFromTexts(searchParts, issuePattern)) {
       issues.add(issue);
