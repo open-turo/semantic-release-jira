@@ -35,7 +35,7 @@ export interface MockCommit {
  * Options for configuring a mock semantic-release context
  */
 export interface MockContextOptions {
-  branch?: { main?: string; name: string } | string;
+  branch?: string | { main?: string; name: string };
   commits?: MockCommit[];
   cwd?: string;
   env?: Record<string, string | undefined>;
@@ -176,7 +176,7 @@ export function createMockContextWithIssues(
   options: MockContextOptions = {},
 ): SemanticReleaseContext {
   const commits = issueKeys.map((key, index) => ({
-    hash: `hash${index}`,
+    hash: `hash${String(index)}`,
     message: `feat(${key}): implement feature`,
   }));
 

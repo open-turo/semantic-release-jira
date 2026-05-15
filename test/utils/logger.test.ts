@@ -103,7 +103,6 @@ describe("StructuredLogger", () => {
       },
       {
         context: {
-          // eslint-disable-next-line sonarjs/no-hardcoded-passwords
           password: "supersecret123",
           username: "john.doe",
         },
@@ -152,7 +151,6 @@ describe("StructuredLogger", () => {
         error: {
           config: {
             auth: {
-              // eslint-disable-next-line sonarjs/no-hardcoded-passwords
               password: "secret-password",
               username: "user@example.com",
             },

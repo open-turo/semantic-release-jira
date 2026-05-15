@@ -19,12 +19,13 @@ export function generateJiraNotesSection(
   }
 
   const grouped = groupIssuesByProject(issues);
-  const sortedProjects = [...grouped.keys()].sort((a, b) => a.localeCompare(b));
+  const sortedEntries = [...grouped.entries()].sort(([a], [b]) =>
+    a.localeCompare(b),
+  );
 
   const lines: string[] = ["## Jira Issues", ""];
 
-  for (const projectKey of sortedProjects) {
-    const projectIssues = grouped.get(projectKey)!;
+  for (const [projectKey, projectIssues] of sortedEntries) {
     const sortedIssues = sortIssuesByNumber(projectIssues);
 
     lines.push(`### ${projectKey}`, "");

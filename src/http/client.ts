@@ -89,7 +89,6 @@ export function createResilientHttpClient(
         // Sanitize auth object if present (not actual credential storage, just error sanitization)
         if (error.config.auth) {
           error.config.auth = {
-            // eslint-disable-next-line sonarjs/no-hardcoded-passwords
             password: "[REDACTED]",
             username: "[REDACTED]",
           };

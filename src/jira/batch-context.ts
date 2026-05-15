@@ -38,14 +38,16 @@ export function processBatchResults(
   let failureCount = 0;
 
   for (const [index, result] of results.entries()) {
-    const label = labels[index];
+    const label = labels[index] ?? `index ${String(index)}`;
 
     if (result.status === "fulfilled") {
       if (result.value.success) {
         logger.success(`${options.successVerb} ${label}`);
         successCount++;
       } else {
-        logger.log(`${options.failureVerb} ${label}: ${result.value.error}`);
+        logger.log(
+          `${options.failureVerb} ${label}: ${result.value.error ?? "unknown error"}`,
+        );
         failureCount++;
       }
     } else {

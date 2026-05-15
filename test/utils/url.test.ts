@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/code-eval */
 /**
  * Tests for URL encoding and generation utilities
  */

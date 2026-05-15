@@ -114,11 +114,14 @@ export class SemanticReleaseJiraPlugin {
       issuePattern,
     );
 
-    this.logger.log(`Found ${collected.issues.size} unique Jira issues`, {
-      issueCount: collected.issues.size,
-      operation: "collectIssues",
-      sources: collected.sources,
-    });
+    this.logger.log(
+      `Found ${String(collected.issues.size)} unique Jira issues`,
+      {
+        issueCount: collected.issues.size,
+        operation: "collectIssues",
+        sources: collected.sources,
+      },
+    );
 
     const allIssues = parseIssueKeys(collected.issues, issuePattern);
     this.collectedIssues = this.hasJiraCredentials()
@@ -152,7 +155,7 @@ export class SemanticReleaseJiraPlugin {
     }
 
     this.logger.log(
-      `Generating release notes for ${this.collectedIssues.length} Jira issues`,
+      `Generating release notes for ${String(this.collectedIssues.length)} Jira issues`,
       { issueCount: this.collectedIssues.length, operation: "generateNotes" },
     );
 
@@ -340,7 +343,7 @@ export class SemanticReleaseJiraPlugin {
       this.logger.log("Would create versions:");
       for (const [projectKey, issues] of grouped) {
         this.logger.log(
-          `  - ${projectKey}/${versionName} with ${issues.length} issues`,
+          `  - ${projectKey}/${versionName} with ${String(issues.length)} issues`,
         );
       }
     }

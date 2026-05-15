@@ -132,7 +132,7 @@ export class JiraClient {
       results,
       groupedEntries.map(
         ([projectKey, projectIssues]) =>
-          `version ${versionName} in project ${projectKey} with ${projectIssues.length} issues`,
+          `version ${versionName} in project ${projectKey} with ${String(projectIssues.length)} issues`,
       ),
       context.logger,
       {
@@ -153,7 +153,7 @@ export class JiraClient {
 
     if (context.failOnJiraError && failureCount > 0) {
       throw new Error(
-        `Jira version creation failed for ${failureCount} project(s). See logs for details.`,
+        `Jira version creation failed for ${String(failureCount)} project(s). See logs for details.`,
       );
     }
   }
@@ -170,7 +170,7 @@ export class JiraClient {
     }
 
     context.logger.log(
-      `Fetching summaries for ${issues.length} Jira issues...`,
+      `Fetching summaries for ${String(issues.length)} Jira issues...`,
       { issueCount: issues.length, operation: "fetchIssueSummaries" },
     );
 
@@ -209,7 +209,7 @@ export class JiraClient {
     }
 
     context.logger.success(
-      `Fetched ${successCount} summaries (${failureCount} skipped)`,
+      `Fetched ${String(successCount)} summaries (${String(failureCount)} skipped)`,
       {
         duration: fetchTimer(),
         failureCount,
@@ -220,7 +220,7 @@ export class JiraClient {
 
     if (context.failOnJiraError && failureCount > 0) {
       throw new Error(
-        `Failed to fetch summaries for ${failureCount} Jira issue(s). See logs for details.`,
+        `Failed to fetch summaries for ${String(failureCount)} Jira issue(s). See logs for details.`,
       );
     }
 
@@ -229,7 +229,7 @@ export class JiraClient {
 
   async getIssueDetails(
     issueKey: string,
-  ): Promise<{ key: string; summary: string } | undefined> {
+  ): Promise<undefined | { key: string; summary: string }> {
     try {
       const { data } = await this.http.get<{
         fields: { summary: string };
@@ -299,7 +299,7 @@ export class JiraClient {
 
     if (context.failOnJiraError && failureCount > 0) {
       throw new Error(
-        `Jira issue transitions failed for ${failureCount} issue(s). See logs for details.`,
+        `Jira issue transitions failed for ${String(failureCount)} issue(s). See logs for details.`,
       );
     }
   }
@@ -364,7 +364,7 @@ export class JiraClient {
     }
 
     context.logger.success(
-      `Verified ${verifiedIssues.length} issues exist in Jira`,
+      `Verified ${String(verifiedIssues.length)} issues exist in Jira`,
       {
         duration: verificationTimer(),
         issueCount: verifiedIssues.length,
@@ -391,7 +391,7 @@ export class JiraClient {
 
       if (failures > 0) {
         return {
-          error: `Failed to associate ${failures}/${issues.length} issues with version ${versionName}`,
+          error: `Failed to associate ${String(failures)}/${String(issues.length)} issues with version ${versionName}`,
           success: false,
         };
       }

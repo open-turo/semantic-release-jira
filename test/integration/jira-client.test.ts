@@ -805,10 +805,12 @@ describe("Jira Client Integration", () => {
       // Get available transitions
       const transitions = await jira.getIssueTransitions("PROJ-123");
       const doneTransition = transitions.find((t) => t.name === "Done");
-      expect(doneTransition).toBeDefined();
+      if (!doneTransition) {
+        throw new Error("Expected Done transition to be defined");
+      }
 
       // Transition to Done
-      await jira.transitionIssue("PROJ-123", doneTransition!.id);
+      await jira.transitionIssue("PROJ-123", doneTransition.id);
 
       expect(scope.isDone()).toBeTruthy();
     });

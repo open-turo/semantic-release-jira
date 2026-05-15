@@ -293,7 +293,6 @@ describe("createResilientHttpClient", () => {
       await expect(
         client.get("/unauthorized", {
           auth: {
-            // eslint-disable-next-line sonarjs/no-hardcoded-passwords
             password: "secret-password",
             username: "admin",
           },
@@ -302,7 +301,6 @@ describe("createResilientHttpClient", () => {
         expectAxiosError((error) => {
           const auth: unknown = error.config?.auth;
           expect(auth).toEqual({
-            // eslint-disable-next-line sonarjs/no-hardcoded-passwords
             password: "[REDACTED]",
             username: "[REDACTED]",
           });
