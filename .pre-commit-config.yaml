@@ -19,19 +19,19 @@ repos:
       - id: prettier
         additional_dependencies: ["prettier@3.7.4"]
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v9.20.1
+    rev: v9.39.1
     hooks:
       - id: eslint
         args: [--fix, --quiet]
         files: (src|test)\/.*\.(ts|tsx|js|jsx|json)?$
         types: [file]
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-    rev: v9.20.0
+    rev: v9.25.0
     hooks:
       - id: commitlint
         stages: [commit-msg]
         additional_dependencies: ["@open-turo/commitlint-config-conventional"]
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.7
+    rev: v1.7.12
     hooks:
       - id: actionlint
