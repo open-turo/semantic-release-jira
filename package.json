@@ -23,7 +23,7 @@
     "prettier": "3.7.4",
     "rimraf": "6.1.2",
     "semantic-release": "24.2.0",
-    "ts-patch": "3.3.0",
+    "ts-patch": "4.0.1",
     "tsc-watch": "7.2.0",
     "typescript": "5.9.3",
     "typescript-transform-paths": "3.5.5",
