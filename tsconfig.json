@@ -1,16 +1,15 @@
 {
   "compilerOptions": {
-    "alwaysStrict": true,
-    "baseUrl": "./",
+    "composite": true,
     "declaration": true,
-    "experimentalDecorators": true,
     "esModuleInterop": true,
-    "lib": ["ES2021", "DOM"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "noImplicitAny": true,
+    "experimentalDecorators": true,
+    "incremental": true,
+    "lib": ["dom", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "noImplicitReturns": true,
-    "noImplicitThis": true,
+    "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "outDir": "lib",
@@ -30,10 +29,9 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "strictNullChecks": true,
-    "target": "ES2021",
+    "strict": true,
+    "target": "esnext",
     "typeRoots": ["node_modules/@types", "types"]
   },
-  "exclude": ["node_modules"],
   "include": ["src", "test", "vitest.config.ts"]
 }
