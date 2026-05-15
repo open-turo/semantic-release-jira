@@ -8,3 +8,4 @@ reports/
 npm_auth_token
 .DS_Store
 .yalc
+*.tsbuildinfo
