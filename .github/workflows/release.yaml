@@ -10,7 +10,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - uses: open-turo/actions-node/release@v6
+      - uses: open-turo/actions-node/release@v7
         with:
           github-token: ${{ secrets.OPEN_TURO_GITHUB_TOKEN }}
           npm-token: ${{ secrets.OPEN_TURO_NPM_TOKEN }}

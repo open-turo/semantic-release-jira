@@ -14,7 +14,7 @@ jobs:
           mkdir -p "$HOME/bin"
           bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) latest "$HOME/bin"
           echo "${HOME}/bin" >> "$GITHUB_PATH"
-      - uses: open-turo/actions-node/lint@v6
+      - uses: open-turo/actions-node/lint@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           npm-token: ${{ secrets.OPEN_TURO_NPM_TOKEN }}
@@ -22,7 +22,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: open-turo/actions-node/test@v6
+      - uses: open-turo/actions-node/test@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           test-flags: --coverage

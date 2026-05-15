@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Prerelease
         id: prerelease
-        uses: open-turo/actions-node/prerelease@v6
+        uses: open-turo/actions-node/prerelease@v7
         with:
           github-token: ${{ secrets.OPEN_TURO_GITHUB_TOKEN }}
           npm-token: ${{ secrets.OPEN_TURO_NPM_TOKEN }}
