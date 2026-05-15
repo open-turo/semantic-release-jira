@@ -72,6 +72,9 @@ export function parseIssueKeys(
     }
 
     const projectKey = key.split("-")[0];
+    if (!projectKey) {
+      continue;
+    }
 
     parsedIssues.push({
       key,

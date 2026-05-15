@@ -46,7 +46,7 @@ export function generateJiraNotesSection(
  * Extracts the numeric component from an issue key
  */
 function extractIssueNumber(issueKey: string): number {
-  return Number.parseInt(issueKey.split("-")[1], 10);
+  return Number.parseInt(issueKey.split("-")[1] ?? "", 10);
 }
 
 /**

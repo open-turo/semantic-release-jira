@@ -325,8 +325,8 @@ describe("getIssuePattern", () => {
     const matches = [...text.matchAll(pattern)];
 
     expect(matches).toHaveLength(2);
-    expect(matches[0][0]).toBe("PROJECT-123");
-    expect(matches[1][0]).toBe("TEAM-456");
+    expect(matches[0]?.[0]).toBe("PROJECT-123");
+    expect(matches[1]?.[0]).toBe("TEAM-456");
   });
 
   it("should not match invalid issue keys", () => {

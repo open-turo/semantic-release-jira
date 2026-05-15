@@ -237,8 +237,8 @@ describe("createResilientHttpClient", () => {
 
       // Verify delays increase (with some tolerance for timing)
       // First delay: ~100ms, Second delay: ~200ms (2^1 * 100), Third delay: ~400ms (2^2 * 100)
-      expect(delays[1]).toBeGreaterThan(delays[0]);
-      expect(delays[2]).toBeGreaterThan(delays[1]);
+      expect(delays[1] ?? 0).toBeGreaterThan(delays[0] ?? 0);
+      expect(delays[2] ?? 0).toBeGreaterThan(delays[1] ?? 0);
       expect(scope.isDone()).toBeTruthy();
     });
 

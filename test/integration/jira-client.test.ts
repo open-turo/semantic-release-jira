@@ -327,7 +327,7 @@ describe("Jira Client Integration", () => {
         name: "In Progress",
         to: { id: "3", name: "In Progress" },
       });
-      expect(transitions[1].name).toBe("Done");
+      expect(transitions[1]?.name).toBe("Done");
       expect(scope.isDone()).toBeTruthy();
     });
 

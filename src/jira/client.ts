@@ -137,7 +137,7 @@ export class JiraClient {
       context.logger,
       {
         errorContext: (_label, index) => ({
-          projectKey: groupedEntries[index][0],
+          projectKey: groupedEntries[index]?.[0],
         }),
         failureVerb: "Could not create",
         successVerb: "Created",
@@ -187,6 +187,7 @@ export class JiraClient {
 
     for (const [index, result] of results.entries()) {
       const issue = issues[index];
+      if (!issue) continue;
 
       if (result.status === "fulfilled" && result.value !== undefined) {
         enrichedIssues.push({ ...issue, summary: result.value.summary });
@@ -348,6 +349,7 @@ export class JiraClient {
     const verifiedIssues: JiraIssue[] = [];
     for (const [index, result] of results.entries()) {
       const issue = issues[index];
+      if (!issue) continue;
 
       if (result.status === "fulfilled") {
         if (result.value) {

@@ -67,9 +67,9 @@ describe("parseIssueKeys - Enhanced with Validation", () => {
     const keys = createIssueKeySet("ABC-123", "MYPROJECT-456", "X1Y2Z3-789");
     const issues = parseIssueKeys(keys);
 
-    expect(issues[0].projectKey).toBe("ABC");
-    expect(issues[1].projectKey).toBe("MYPROJECT");
-    expect(issues[2].projectKey).toBe("X1Y2Z3");
+    expect(issues[0]?.projectKey).toBe("ABC");
+    expect(issues[1]?.projectKey).toBe("MYPROJECT");
+    expect(issues[2]?.projectKey).toBe("X1Y2Z3");
   });
 
   it("should handle empty set", () => {
@@ -111,8 +111,8 @@ describe("parseIssueKeys - Enhanced with Validation", () => {
     const issues = parseIssueKeys(keys);
 
     expect(issues).toHaveLength(2);
-    expect(issues[0].projectKey).toBe("SHORT");
-    expect(issues[1].projectKey).toBe("VERYLONGPROJECTKEY123");
+    expect(issues[0]?.projectKey).toBe("SHORT");
+    expect(issues[1]?.projectKey).toBe("VERYLONGPROJECTKEY123");
   });
 
   it("should handle very large issue numbers", () => {
@@ -141,8 +141,8 @@ describe("parseIssueKeys - Enhanced with Validation", () => {
     const keys = createIssueKeySet("ABC123-456", "XYZ-789");
     const issues = parseIssueKeys(keys);
 
-    expect(issues[0].key).toBe("ABC123-456");
-    expect(issues[1].key).toBe("XYZ-789");
+    expect(issues[0]?.key).toBe("ABC123-456");
+    expect(issues[1]?.key).toBe("XYZ-789");
   });
 
   it("should handle duplicate keys (set deduplication)", () => {
