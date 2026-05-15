@@ -88,7 +88,7 @@ export async function fetchGitHubPullRequests(
     );
 
     options.logger.log(
-      `Fetched ${pullRequests.length} pull requests from GitHub`,
+      `Fetched ${String(pullRequests.length)} pull requests from GitHub`,
       {
         operation: "fetchPullRequests",
         prCount: pullRequests.length,

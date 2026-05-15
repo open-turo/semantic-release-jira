@@ -437,7 +437,7 @@ describe("hasEnvironmentVariables", () => {
     // Clean all SEMANTIC_RELEASE_JIRA_* vars
     for (const key of Object.keys(process.env)) {
       if (key.startsWith("SEMANTIC_RELEASE_JIRA_")) {
-        delete process.env[key];
+        Reflect.deleteProperty(process.env, key);
       }
     }
   });
@@ -491,7 +491,7 @@ describe("isConfigurationProvided", () => {
     // Clean all SEMANTIC_RELEASE_JIRA_* vars
     for (const key of Object.keys(process.env)) {
       if (key.startsWith("SEMANTIC_RELEASE_JIRA_")) {
-        delete process.env[key];
+        Reflect.deleteProperty(process.env, key);
       }
     }
   });

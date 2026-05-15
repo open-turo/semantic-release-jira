@@ -405,7 +405,7 @@ describe("GitHub Client Integration", () => {
     it("should handle large number of commits", async () => {
       const commits = Array.from(
         { length: 50 },
-        (_, index) => `commit${index}`,
+        (_, index) => `commit${String(index)}`,
       );
 
       const mockFunction = vi
@@ -513,7 +513,9 @@ describe("GitHub Client Integration", () => {
 
       // Detect GitHub config
       const config = detectGitHubRepo(environment);
-      expect(config).not.toBeUndefined();
+      if (!config) {
+        throw new Error("Expected GitHub config to be defined");
+      }
 
       // Create mock client
       const mockClient = createMockGitHubClientWithMergedPR(
@@ -524,8 +526,8 @@ describe("GitHub Client Integration", () => {
       // Fetch PRs
       const prs = await fetchPullRequestsForCommits(
         mockClient,
-        config!.owner,
-        config!.repo,
+        config.owner,
+        config.repo,
         ["abc123"],
       );
 
