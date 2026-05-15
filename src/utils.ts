@@ -39,7 +39,9 @@ export function getRepositoryName(
   // Try GitHub environment first
   if (environment.GITHUB_REPOSITORY) {
     const [, repo] = environment.GITHUB_REPOSITORY.split("/");
-    return repo;
+    if (repo) {
+      return repo;
+    }
   }
 
   // Fallback to generic name

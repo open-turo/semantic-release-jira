@@ -161,9 +161,9 @@ describe("GitHub Client Integration", () => {
       );
 
       expect(prs).toHaveLength(3);
-      expect(prs[0].number).toBe(42);
-      expect(prs[1].number).toBe(43);
-      expect(prs[2].number).toBe(44);
+      expect(prs[0]?.number).toBe(42);
+      expect(prs[1]?.number).toBe(43);
+      expect(prs[2]?.number).toBe(44);
     });
 
     it("should deduplicate pull requests from multiple commits", async () => {
@@ -195,7 +195,7 @@ describe("GitHub Client Integration", () => {
 
       // Should only include PR #42 once
       expect(prs).toHaveLength(1);
-      expect(prs[0].number).toBe(42);
+      expect(prs[0]?.number).toBe(42);
     });
 
     it("should only include merged pull requests", async () => {
@@ -231,8 +231,8 @@ describe("GitHub Client Integration", () => {
 
       // Should only include merged PR
       expect(prs).toHaveLength(1);
-      expect(prs[0].number).toBe(42);
-      expect(prs[0].merged).toBe(true);
+      expect(prs[0]?.number).toBe(42);
+      expect(prs[0]?.merged).toBe(true);
     });
 
     it("should handle commits with no pull requests", async () => {
@@ -350,8 +350,8 @@ describe("GitHub Client Integration", () => {
 
       // Should return PRs from successful requests
       expect(prs).toHaveLength(2);
-      expect(prs[0].number).toBe(42);
-      expect(prs[1].number).toBe(43);
+      expect(prs[0]?.number).toBe(42);
+      expect(prs[1]?.number).toBe(43);
     });
 
     it("should handle PRs with null body", async () => {
@@ -374,8 +374,8 @@ describe("GitHub Client Integration", () => {
       );
 
       expect(prs).toHaveLength(1);
-      expect(prs[0].body).toBeUndefined();
-      expect(prs[0].number).toBe(42);
+      expect(prs[0]?.body).toBeUndefined();
+      expect(prs[0]?.number).toBe(42);
     });
 
     it("should handle PRs with empty body", async () => {
@@ -398,8 +398,8 @@ describe("GitHub Client Integration", () => {
       );
 
       expect(prs).toHaveLength(1);
-      expect(prs[0].body).toBe("");
-      expect(prs[0].number).toBe(42);
+      expect(prs[0]?.body).toBe("");
+      expect(prs[0]?.number).toBe(42);
     });
 
     it("should handle large number of commits", async () => {
@@ -442,8 +442,8 @@ describe("GitHub Client Integration", () => {
       );
 
       expect(prs).toHaveLength(50);
-      expect(prs[0].number).toBe(1);
-      expect(prs[49].number).toBe(50);
+      expect(prs[0]?.number).toBe(1);
+      expect(prs[49]?.number).toBe(50);
     });
 
     it("should handle mixed success and failure scenarios", async () => {
@@ -499,8 +499,8 @@ describe("GitHub Client Integration", () => {
 
       // Should only include the 2 merged PRs from successful requests
       expect(prs).toHaveLength(2);
-      expect(prs[0].number).toBe(42);
-      expect(prs[1].number).toBe(43);
+      expect(prs[0]?.number).toBe(42);
+      expect(prs[1]?.number).toBe(43);
     });
   });
 
@@ -532,7 +532,7 @@ describe("GitHub Client Integration", () => {
       );
 
       expect(prs).toHaveLength(1);
-      expect(prs[0].body).toContain("JIRA-123");
+      expect(prs[0]?.body).toContain("JIRA-123");
     });
 
     it("should handle repository with no GitHub environment", () => {
