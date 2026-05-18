@@ -12,10 +12,10 @@
   },
   "description": "Semantic Release plugin for JIRA",
   "devDependencies": {
-    "@open-turo/eslint-config-typescript": "23.0.9",
+    "@open-turo/eslint-config-typescript": "23.0.10",
     "@types/conventional-commits-parser": "5.0.2",
     "@types/fast-redact": "3.0.4",
-    "@types/node": "25.7.0",
+    "@types/node": "25.8.0",
     "@types/safe-regex": "1.1.6",
     "@vitest/coverage-v8": "4.1.6",
     "eslint": "9.39.4",
