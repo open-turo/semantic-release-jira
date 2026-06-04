@@ -3,14 +3,41 @@ name: Release
 on:
   push:
     branches: [main, "[0-9]+.x"]
+  pull_request:
+    types:
+      - opened
+      - labeled
+      - synchronize
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: write
+  issues: read
+  pull-requests: read
+  id-token: write
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
     steps:
       - uses: open-turo/actions-node/release@v7
         with:
           github-token: ${{ secrets.OPEN_TURO_GITHUB_TOKEN }}
-          npm-token: ${{ secrets.OPEN_TURO_NPM_TOKEN }}
+
+  prerelease:
+    name: Prerelease
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'prerelease')
+    steps:
+      - name: Prerelease
+        id: prerelease
+        uses: open-turo/actions-node/prerelease@v7
+        with:
+          github-token: ${{ secrets.OPEN_TURO_GITHUB_TOKEN }}
+          create-prerelease: true
