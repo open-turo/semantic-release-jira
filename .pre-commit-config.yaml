@@ -19,7 +19,7 @@ repos:
       - id: prettier
         additional_dependencies: ["prettier@3.7.4"]
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v9.39.1
+    rev: v10.6.0
     hooks:
       - id: eslint
         args: [--fix, --quiet]
