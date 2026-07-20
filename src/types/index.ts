@@ -140,8 +140,7 @@ export interface PluginConfig {
  * Used for error handling without throwing exceptions
  */
 export type Result<T, E = string> =
-  | { data: T; success: true }
-  | { error: E; success: false };
+  { data: T; success: true } | { error: E; success: false };
 
 export interface SemanticReleaseContext {
   branch: {

@@ -103,6 +103,7 @@ describe("StructuredLogger", () => {
       },
       {
         context: {
+          // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- fake credential, asserting redaction
           password: "supersecret123",
           username: "john.doe",
         },
@@ -151,6 +152,7 @@ describe("StructuredLogger", () => {
         error: {
           config: {
             auth: {
+              // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- fake credential, asserting redaction
               password: "secret-password",
               username: "user@example.com",
             },
