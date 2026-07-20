@@ -10,7 +10,7 @@ import type { GitHubPullRequest } from "~/types/index.js";
 /**
  * Standard issue pattern used across all parser tests
  */
-// eslint-disable-next-line sonarjs/slow-regex
+// eslint-disable-next-line sonarjs/super-linear-regex -- fixed-format issue key, bounded length, no catastrophic backtracking risk
 export const STANDARD_ISSUE_PATTERN = /[A-Z][A-Z0-9]+-\d+/g;
 
 /**
