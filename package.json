@@ -17,7 +17,7 @@
     "@types/fast-redact": "3.0.4",
     "@types/node": "25.9.5",
     "@types/safe-regex": "1.1.6",
-    "@vitest/coverage-v8": "4.1.10",
+    "@vitest/coverage-v8": "4.1.11",
     "eslint": "9.39.5",
     "nock": "13.5.6",
     "prettier": "3.9.6",
@@ -27,7 +27,7 @@
     "tsc-watch": "7.2.1",
     "typescript": "6.0.3",
     "typescript-transform-paths": "4.0.0",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "engines": {
     "node": ">= 20.0.0"
