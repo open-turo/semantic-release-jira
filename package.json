@@ -17,6 +17,7 @@
     "@types/fast-redact": "3.0.4",
     "@types/node": "25.9.5",
     "@types/safe-regex": "1.1.6",
+    "@typescript/native": "npm:typescript@7.0.2",
     "@vitest/coverage-v8": "4.1.11",
     "eslint": "9.39.5",
     "nock": "13.5.6",
@@ -25,9 +26,14 @@
     "semantic-release": "25.0.9",
     "ts-patch": "4.0.1",
     "tsc-watch": "7.2.1",
-    "typescript": "7.0.2",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
     "typescript-transform-paths": "4.0.0",
     "vitest": "4.1.11"
+  },
+  "overrides": {
+    "eslint-plugin-sonarjs": {
+      "typescript": "6.0.3"
+    }
   },
   "engines": {
     "node": ">= 20.0.0"
@@ -42,13 +48,13 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tspc -p ./tsconfig.build.json",
+    "build": "TSP_COMPILER_TS_PATH=./node_modules/@typescript/old tspc -p ./tsconfig.build.json",
     "check-types": "tsc --noemit",
     "clean": "rimraf lib",
     "lint": "eslint ./src ./test eslint.config.mjs && npm run check-types",
     "test": "vitest run",
     "test:watch": "vitest",
-    "watch": "npm run clean && tsc-watch -w -p ./tsconfig.build.json --compiler ./node_modules/.bin/tspc"
+    "watch": "npm run clean && TSP_COMPILER_TS_PATH=./node_modules/@typescript/old tsc-watch -w -p ./tsconfig.build.json --compiler ./node_modules/.bin/tspc"
   },
   "type": "module",
   "types": "lib/index.d.ts",
