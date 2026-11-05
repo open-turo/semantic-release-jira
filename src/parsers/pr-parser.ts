@@ -13,7 +13,6 @@ export function parsePullRequestsForIssues(
   pullRequests: GitHubPullRequest[],
   issuePattern: RegExp,
 ): Set<string> {
-  // eslint-disable-next-line unicorn/no-array-callback-reference -- Required for type narrowing
   const bodies = pullRequests.map((pr) => pr.body).filter(isNonEmptyString);
   return extractIssuesFromTexts(bodies, issuePattern);
 }

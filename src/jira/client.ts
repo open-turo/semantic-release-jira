@@ -264,7 +264,7 @@ export class JiraClient {
    */
   async transitionIssues(
     issues: JiraIssue[],
-    context: { transitionToStatus?: string } & BatchContext,
+    context: BatchContext & { transitionToStatus?: string },
   ): Promise<void> {
     context.logger.log("Transitioning issues to done status...", {
       issueCount: issues.length,

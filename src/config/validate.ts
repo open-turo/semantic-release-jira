@@ -335,7 +335,7 @@ const configSchema = z
             const parsedUrl = new URL(value);
             return (
               parsedUrl.protocol === "https:" ||
-              ["::1", "127.0.0.1", "localhost"].includes(parsedUrl.hostname)
+              ["127.0.0.1", "::1", "localhost"].includes(parsedUrl.hostname)
             );
           } catch {
             // If URL parsing fails, let the previous refine handle it

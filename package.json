@@ -12,7 +12,7 @@
   },
   "description": "Semantic Release plugin for JIRA",
   "devDependencies": {
-    "@open-turo/eslint-config-typescript": "23.2.7",
+    "@open-turo/eslint-config-typescript": "24.0.0",
     "@types/conventional-commits-parser": "5.0.2",
     "@types/fast-redact": "3.0.4",
     "@types/node": "25.9.9",
@@ -51,7 +51,7 @@
     "build": "TSP_COMPILER_TS_PATH=./node_modules/@typescript/old tspc -p ./tsconfig.build.json",
     "check-types": "tsc --noemit",
     "clean": "rimraf lib",
-    "lint": "eslint ./src ./test eslint.config.mjs && npm run check-types",
+    "lint": "eslint . && npm run check-types",
     "test": "vitest run",
     "test:watch": "vitest",
     "watch": "npm run clean && TSP_COMPILER_TS_PATH=./node_modules/@typescript/old tsc-watch -w -p ./tsconfig.build.json --compiler ./node_modules/.bin/tspc"

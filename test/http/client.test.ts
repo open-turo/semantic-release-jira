@@ -293,7 +293,6 @@ describe("createResilientHttpClient", () => {
       await expect(
         client.get("/unauthorized", {
           auth: {
-            // eslint-disable-next-line sonarjs/no-hardcoded-passwords -- fake credential, asserting redaction
             password: "secret-password",
             username: "admin",
           },
