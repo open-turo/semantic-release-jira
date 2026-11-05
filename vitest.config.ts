@@ -1,7 +1,5 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { defineConfig } from "vitest/config";
 
-// eslint-disable-next-line import/no-default-export
 export default defineConfig({
   define: {
     "process.env.NEW_RELIC_ENABLED": '"false"',

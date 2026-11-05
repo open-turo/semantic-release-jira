@@ -1,7 +1,6 @@
 import turoConfig from "@open-turo/eslint-config-typescript";
 import { defineConfig } from "eslint/config";
 
-// eslint-disable-next-line import/no-default-export
 export default defineConfig([
   turoConfig({
     allowModules: [
@@ -10,7 +9,7 @@ export default defineConfig([
       "nock",
       "vitest",
     ],
-    ignores: ["lib"],
+    ignores: ["coverage", "lib", "reports"],
     testFramework: "vitest",
   }),
 ]);
